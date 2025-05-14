@@ -4,7 +4,32 @@ Feature: DVLA API Response and Eligibility Checks
   I want to ensure the system processes the response correctly and applies business rules
   So that I can confirm the eligibility of the vehicle and driver(s)
 
-  # Integration Testing
+  # ===================
+  # Happy Path Tests
+  # ===================
+
+  @integration-testing
+
+  Scenario: DVLA API response received and parsed correctly
+    Given the system submits driver details to the DVLA API
+    When the system receives a response with valid eligibility data
+    Then the system should process the response and apply business rules correctly
+    And the eligibility status should be displayed to the user
+
+  @e2e-testing
+
+  Scenario: Vehicle meets eligibility criteria
+    Given the DVLA API returns a response with "eligible: true"
+    When the system processes the response
+    Then the system should display "Vehicle is eligible"
+    And proceed to the next step in the application
+
+
+  # ===================
+  # Negative Tests
+  # ===================
+
+  @integration-testing
 
   Scenario: API response returns an error status
     Given the DVLA API returns a 500 error response
@@ -18,19 +43,7 @@ Feature: DVLA API Response and Eligibility Checks
     Then the system should display "Invalid response received from the DVLA API"
     And prompt the user to check the registration number and try again
 
-  Scenario: DVLA API response received and parsed correctly
-    Given the system submits driver details to the DVLA API
-    When the system receives a response with valid eligibility data
-    Then the system should process the response and apply business rules correctly
-    And the eligibility status should be displayed to the user
-
-  # End to End Testing
-
-  Scenario: Vehicle meets eligibility criteria
-    Given the DVLA API returns a response with "eligible: true"
-    When the system processes the response
-    Then the system should display "Vehicle is eligible"
-    And proceed to the next step in the application
+  @e2e-testing
 
   Scenario: Error handling for DVLA response - Driver Disqualified
     Given the DVLA API returns a response indicating the driver is "disqualified"
@@ -42,6 +55,18 @@ Feature: DVLA API Response and Eligibility Checks
     And the selected vehicle has a "manual" transmission
     When the system processes the response
     Then the system should display the error "Driver with automatic licence cannot drive a manual vehicle"
+
+  Scenario: User-friendly messaging for failed eligibility check
+    Given the DVLA API returns a response with "eligible: false" and a reason for ineligibility
+    When the system processes the response
+    Then the system should display a user-friendly message explaining the ineligibility reason (e.g., "Driver has too many endorsements from categories G, H, and I")
+    And the form should be blocked from submission
+
+  # ===================
+  # Edge Cases
+  # ===================
+
+  @e2e-testing
 
   Scenario: Edge case for endorsements - Driver with multiple endorsements in last 4 years
     Given the DVLA API returns a response with a driver having "4" endorsements in the last 4 years from categories G, H, and I
@@ -59,9 +84,3 @@ Feature: DVLA API Response and Eligibility Checks
     When the system processes the response
     Then the system should display the error "Driver has an endorsement from category F in the last 4 years"
     And the vehicle should not be eligible for that driver
-
-  Scenario: User-friendly messaging for failed eligibility check
-    Given the DVLA API returns a response with "eligible: false" and a reason for ineligibility
-    When the system processes the response
-    Then the system should display a user-friendly message explaining the ineligibility reason (e.g., "Driver has too many endorsements from categories G, H, and I")
-    And the form should be blocked from submission

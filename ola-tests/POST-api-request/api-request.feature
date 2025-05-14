@@ -4,7 +4,11 @@ Feature: API Request by POST
   I want to ensure the system formats and sends the correct API request
   So that the eligibility data can be processed correctly by the system
 
-  # Integration Testing
+  # ===================
+  # Happy Path Tests
+  # ===================
+
+  @integration-testing
 
   Scenario: Inputs are transformed into the correct JSON format by POST
     Given the user has entered valid form data
@@ -12,6 +16,12 @@ Feature: API Request by POST
     Then the system should send a POST request to "/api/v2/applications" with the correct JSON body
     And the JSON should include customer details, drivers, vehicle adaptations, etc.
   
+  # ===================
+  # Negative Tests
+  # ===================
+
+  @integration-testing
+
   Scenario: UI displays loading or error state if API call fails
     Given the user submits the application
     When the API call fails (e.g., due to network issues)
@@ -28,3 +38,15 @@ Feature: API Request by POST
     Given the DVLA API returns a network error
     When the user submits the form
     Then the system should show "Unable to reach the DVLA API, please try again later"
+
+  # ===================
+  # Edge Cases
+  # ===================
+
+  @integration-testing
+
+  Scenario: User double-clicks submit and triggers multiple requests
+    Given the user clicks the "Submit" button multiple times rapidly
+    When the system processes the form
+    Then only one API request should be sent
+    And the button should be disabled after the first click
