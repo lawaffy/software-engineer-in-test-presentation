@@ -56,11 +56,25 @@ Feature: DVLA API Response and Eligibility Checks
     When the system processes the response
     Then the system should display the error "Driver with automatic licence cannot drive a manual vehicle"
 
+   Scenario: Endorsement business rule - Driver with 2 endorsements in category G within the last 4 years
+    Given the DVLA API returns a response with a driver having "2" endorsements from category G in the last 4 years
+    When the system processes the response
+    Then the system should display the error "Driver has too many endorsements in category G in the last 4 years"
+    And the vehicle should not be eligible for that driver
+
+  Scenario: Endorsement business rule - Driver with 1 endorsement in category F within the last 4 years
+    Given the DVLA API returns a response with a driver having "1" endorsement from category F in the last 4 years
+    When the system processes the response
+    Then the system should display the error "Driver has an endorsement from category F in the last 4 years"
+    And the vehicle should not be eligible for that driver
+
   Scenario: User-friendly messaging for failed eligibility check
     Given the DVLA API returns a response with "eligible: false" and a reason for ineligibility
     When the system processes the response
     Then the system should display a user-friendly message explaining the ineligibility reason (e.g., "Driver has too many endorsements from categories G, H, and I")
     And the form should be blocked from submission
+
+    
 
   # ===================
   # Edge Cases
@@ -73,14 +87,13 @@ Feature: DVLA API Response and Eligibility Checks
     When the system processes the response
     Then the system should display the error "Driver has too many endorsements in the last 4 years"
 
-  Scenario: Endorsement business rule - Driver with 2 endorsements in category G within the last 4 years
-    Given the DVLA API returns a response with a driver having "2" endorsements from category G in the last 4 years
+  Scenario: Driver with no endorsements in the last 4 years
+    Given the DVLA API returns a response with a driver having "0" endorsements in the last 4 years
     When the system processes the response
-    Then the system should display the error "Driver has too many endorsements in category G in the last 4 years"
-    And the vehicle should not be eligible for that driver
+    Then the system should display "Driver is eligible"
 
-  Scenario: Endorsement business rule - Driver with 1 endorsement in category F within the last 4 years
-    Given the DVLA API returns a response with a driver having "1" endorsement from category F in the last 4 years
+  Scenario: Driver with multiple license types across vehicle categories
+    Given the DVLA API returns a response with a driver holding both "automatic" and "manual" license types across various vehicle categories
+    And the driver is attempting to drive a "manual" transmission vehicle
     When the system processes the response
-    Then the system should display the error "Driver has an endorsement from category F in the last 4 years"
-    And the vehicle should not be eligible for that driver
+    Then the system should display "Driver's license types are ambiguous, manual vehicle eligibility unclear"
