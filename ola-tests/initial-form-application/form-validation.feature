@@ -17,8 +17,8 @@ Feature: Initial Form Application
     And the user selects a valid estimated delivery date
     And the user confirms the communication preferences
     When the user submits the application
-    Then the system should submit the application successfully
-    And the application should be saved and processed by the system
+    Then the system will submit the application successfully
+    And the application will be saved and processed by the system
 
   # ===================
   # Negative Tests
@@ -29,22 +29,22 @@ Feature: Initial Form Application
   Scenario: User adds more than 3 drivers
     Given the user adds 4 drivers to the application
     When the user attempts to submit the form
-    Then the system should show an error message: "You can only add up to 3 drivers"
+    Then the system will show an error message: "You can only add up to 3 drivers"
 
   Scenario: User fails to add required details
     Given the user leaves the required fields empty (e.g., first name, last name, vehicle details)
     When the user attempts to submit the application
-    Then the system should show error messages for the missing required fields
+    Then the system will show error messages for the missing required fields
 
   Scenario: DWP consent is not given
     Given the user leaves the DWP consent checkbox unchecked
     When the user submits the form
-    Then the system should show "Consent must be given to continue"
+    Then the system will show "Consent must be given to continue"
 
   Scenario: No communication preference selected
     Given the user skips the communication preferences
     When the user submits the form
-    Then the system should show "Please select at least one contact method"
+    Then the system will show "Please select at least one contact method"
 
   # ===================
   # Edge Cases
@@ -55,11 +55,11 @@ Feature: Initial Form Application
   Scenario: User adds the same driver more than once
     Given the user adds a driver with the same name and license number as an existing driver
     When the user submits the form
-    Then the system should show an error: "Duplicate drivers are not allowed"
+    Then the system will show an error: "Duplicate drivers are not allowed"
 
   Scenario: User adds a driver with incomplete details
     Given the user adds an additional driver
     And only enters the driver's first name but not the license number
     When the user submits the form
-    Then the system should show an error: "Please complete all driver details"
+    Then the system will show an error: "Please complete all driver details"
 
